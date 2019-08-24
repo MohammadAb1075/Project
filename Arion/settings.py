@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
- 
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -43,6 +43,20 @@ INSTALLED_APPS = [
     'project',
     'public'
 ]
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER='utfarabi@gmail.com'
+EMAIL_HOST_PASSWORD = '1234@!@#$'
+EMAIL_PORT = 587
+EMAIL_USE_SSL=False
+
+# EMAIL_HOST='smtp.gmail.com'
+# EMAIL_PORT=587
+# EMAIL_HOST_USER='mostafa.hajirezai1998@gmail.com'
+# EMAIL_HOST_PASSWORD='******'
+# EMAIL_USE_TLS=True
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

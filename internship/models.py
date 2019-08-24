@@ -9,6 +9,7 @@ class Student(models.Model):
     faculty      = models.ForeignKey(Faculties, on_delete=models.DO_NOTHING)
     major        = models.ForeignKey(Major, on_delete=models.CASCADE)
     credits      = models.IntegerField()
+    average      = models.FloatField()
     name         = models.CharField(max_length=31)
     phone        = models.CharField(max_length=31)
     nationalCode = models.CharField(max_length=31)
@@ -18,12 +19,16 @@ class DepartmentHead(models.Model):
     name = models.CharField(max_length=63)
 
 
+
 class FacultyTrainingStaff(models.Model):
     name = models.CharField(max_length=63)
 
 
+
 class UniversityTrainingStaff(models.Model):
     name = models.CharField(max_length=63)
+
+    
 
 class InternshipHead(models.Model):
     student = models.ForeignKey(Student, models.DO_NOTHING)

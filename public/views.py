@@ -1,27 +1,47 @@
+import string
+import random
 from django.contrib.auth import authenticate, login
-
 from django.contrib.auth.models import User
-# from public.functions import email
+
+from django.core.mail import send_mail, BadHeaderError
+
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from internship.models import Student
-# from public.forms import PasswordResetRequestForm
+
+from Arion.utils import CsrfExemptSessionAuthentication
+from rest_framework.authentication import BasicAuthentication
+
 from public.serializers import *
 
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
-
-
-# @api_view(['POST'])
-class signIn(APIView):
-    # authentication_classes = (CsrfExemtSessionAuthentication, BasicAuthentication)
+class SignUpView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        serial = StudentSerilizer(data=request.data)
-        if serial.is_valid():
+        serializer = SignUpSerializer(data = request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+            {
+                'Message' : 'Account Create',
+                'data'  : serializer.data
+            },
+            status=status.HTTP_200_OK
+            )
 
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class SignIn(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self, request):
+        serial = RequestSigninSerializer(data=request.data)
+        if serial.is_valid():
             user = authenticate(
                 request,
                 username=serial.data['username'],
@@ -42,6 +62,47 @@ class signIn(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+        else:
+            return Response(
+             serial.errors,
+             status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class RequestForgetEmail(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self,request):
+        request_serializer = ForgetEmailSerializer(data=request.data) #request.POST['email']
+
+        if request_serializer.is_valid():
+            print("*********************",User.objects.get(username=request_serializer.data['username']))
+            if User.objects.get(username=request_serializer.data['email']) in User.objects:
+                mail = request_serializer.data['email']
+                mail = mail.split()
+                send_mail('New Password', 'This is Your New Password !!!','utfarabi@gmail.com', mail)
+                return Response(
+                    {
+                        'message':'A New Email Sended successfuly!!!'
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                {
+                    'message':'there is No  Any Account With This Email'
+                },
+                 status=status.HTTP_404_FORBIDDEN
+                )
+
+        else:
+            return Response(
+             serial.errors,
+             status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+    def id_generator(size=6, chars=string.ascii_uppercase + string.ascii_lowercase+ string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
 
 
 
@@ -66,22 +127,6 @@ class EditProfile(APIView):
 
 
 
-class RequestForgetemail(APIView):
-
-    def post(self,request):
-        request_serializer = ForgetEmailSerializer(data=request.data) #request.POST['email']
-
-        if request_serializer.is_valid():
-            if User.objects.filter(email__exact=email):
-                try:
-                    # email('this is subject', 'this is text')
-                    return Response(status=status.HTTP_200_OK)
-
-                except:
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 def takeEmailLink(request):
