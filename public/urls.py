@@ -6,5 +6,6 @@ urlpatterns = [
     path('signin/',csrf_exempt(views.SignIn.as_view())),
     path('editprofile/', views.EditProfile.as_view()),
     path('email/', views.RequestForgetEmail.as_view()),
+    path('logout/', views.LogOutView.as_view()),
     # path('forgetpassword/', views.RequestForgetEmail.as_view()),
     ]

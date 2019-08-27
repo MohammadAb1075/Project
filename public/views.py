@@ -2,20 +2,29 @@ import string
 import random
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail, BadHeaderError
-
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
-from internship.models import Student
-
-from Arion.utils import CsrfExemptSessionAuthentication
 from rest_framework.authentication import BasicAuthentication
-
+from Arion.utils import CsrfExemptSessionAuthentication
+from internship.models import Student
 from public.serializers import *
+from . import newpass
+
+
+
+# class RoleSignUp(APIView):
+#     def post(self, request):
+#         serializer = RoleSignUpSerializer(data = request.data)
+#
+
+
+
+
 
 class SignUpView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
@@ -69,65 +78,77 @@ class SignIn(APIView):
             )
 
 
-class RequestForgetEmail(APIView):
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
-    def post(self,request):
-        request_serializer = ForgetEmailSerializer(data=request.data) #request.POST['email']
-
-        if request_serializer.is_valid():
-            print("*********************",User.objects.get(username=request_serializer.data['username']))
-            if User.objects.get(username=request_serializer.data['email']) in User.objects:
-                mail = request_serializer.data['email']
-                mail = mail.split()
-                send_mail('New Password', 'This is Your New Password !!!','utfarabi@gmail.com', mail)
-                return Response(
-                    {
-                        'message':'A New Email Sended successfuly!!!'
-                    },
-                    status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                {
-                    'message':'there is No  Any Account With This Email'
-                },
-                 status=status.HTTP_404_FORBIDDEN
-                )
-
-        else:
-            return Response(
-             serial.errors,
-             status=status.HTTP_400_BAD_REQUEST
-            )
-
-
-    def id_generator(size=6, chars=string.ascii_uppercase + string.ascii_lowercase+ string.digits):
-        return ''.join(random.choice(chars) for _ in range(size))
-
-
-
 class EditProfile(APIView):
-
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def put(self,request):
-
-        serializer = EditProfileSerializer(data=request.data)
-
+        serializer = EditProfileSerializer(instance=request.user,data=request.data)
         if serializer.is_valid():
+            print("***********************",request.user)
+            # serializer.update(request.user,request.data)
+            serializer.save()
 
-            serializer.update(request.user,request.data)
-
-            return Response({
-                'message': 'your account have been Edited successfuly',
-                'data': serializer.data
-            })
+            return Response(
+                {
+                    'message': 'your account have been Edited successfuly',
+                    'data': serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
 
 
+class RequestForgetEmail(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self,request):
+
+        serializer = ForgetEmailSerializer(data=request.data) #request.POST['email']
+        if serializer.is_valid():
+            try:
+                user = User.objects.get(username=serializer.data['username'])
+            except ObjectDoesNotExist:
+                return Response(
+                    {
+                        'message': 'There is not any account with this username'
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            newpassword = newpass.get_code(10)
+            print("NEW",user)
+            send_mail('New Password', 'This is Your New Password : {}'.format(newpassword),'utfarabi@gmail.com', user.username.split())
+            user.set_password(newpassword)
+            user.save()
+
+            return Response(
+                {
+                    'message':'A New Email Sended successfuly!!!'
+                },
+                status=status.HTTP_200_OK
+            )
+
+        else:
+            return Response(
+             serializer.errors,
+             status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 
-def takeEmailLink(request):
-    pass
+class LogOutView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self, request):
+        print(request.user)
+        print("************",request.session)
+        request.session.flush()
+        request.user = AnonymousUser()
+        print(request.user)
+        # logout(request, user)
+        return Response(
+            {
+                'message': 'Your account info is correct',
+            },
+            status=status.HTTP_200_OK
+        )
