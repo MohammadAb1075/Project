@@ -1,37 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
-from research.models import Faculties,College,Major
+from public.models import Users,Teachers,Student,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
+from public.models import Faculties,College,Major
 
-
-class Student(models.Model):
-    user         = models.ForeignKey(User, on_delete=models.CASCADE)
-    college      = models.ForeignKey(College, on_delete=models.DO_NOTHING)
-    faculty      = models.ForeignKey(Faculties, on_delete=models.DO_NOTHING)
-    major        = models.ForeignKey(Major, on_delete=models.CASCADE)
-    credits      = models.IntegerField()
-    average      = models.FloatField()
-    name         = models.CharField(max_length=31)
-    phone        = models.CharField(max_length=31)
-    nationalCode = models.CharField(max_length=31)
-
-
-class DepartmentHead(models.Model):
-    name = models.CharField(max_length=63)
-
-
-
-class FacultyTrainingStaff(models.Model):
-    name = models.CharField(max_length=63)
-
-
-
-class UniversityTrainingStaff(models.Model):
-    name = models.CharField(max_length=63)
-
-    
 
 class InternshipHead(models.Model):
-    student = models.ForeignKey(Student, models.DO_NOTHING)
+    user    = models.ForeignKey(Users, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
     name    = models.CharField(max_length=31)
     phone   = models.CharField(max_length=31)
     email   = models.EmailField()
@@ -69,6 +43,7 @@ class Request(models.Model):
     internShipConfirmation = models.IntegerField()
     agreementUploadedUrl   = models.TextField()
 
+
 class InternShipState(models.Model):
     name = models.CharField(max_length=31)
 
@@ -82,14 +57,13 @@ class RequestState(models.Model):
 
 
 class Opinions(models.Model):
-    person      = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='Operson')
+    person      = models.ForeignKey(Users, on_delete=models.DO_NOTHING, related_name='Operson')
     student     = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Ouserstudent')
     request     = models.ForeignKey(Request, on_delete=models.DO_NOTHING, related_name='Orequest')
     seenDate    = models.DateTimeField()
     opinion     = models.TextField()
     opinionDate = models.DateTimeField()
     opinionText = models.TextField()
-
 
 
 
@@ -123,11 +97,6 @@ class WeeklyReport(models.Model):
     reportAttachmentUploadUrl = models.TextField()
     reportText                = models.TextField()
     supervisorConfirmation    = models.BooleanField()
-
-
-
-class Teachers(models.Model):
-    name = models.CharField(max_length=127)
 
 
 

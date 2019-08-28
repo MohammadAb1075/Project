@@ -1,24 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-
-class Faculties(models.Model):
-    name = models.CharField(max_length=255)
-
-
-class Department(models.Model):
-    faculty = models.ForeignKey(Faculties, on_delete=models.CASCADE)
-    name    = models.CharField(max_length=255)
-
-
-class Institute(models.Model):
-    faculty = models.ForeignKey(Faculties, on_delete=models.CASCADE)
-    name    = models.CharField(max_length=255)
-
-
-class College(models.Model):
-    faculty = models.ForeignKey(Faculties, on_delete=models.CASCADE)
-    name    = models.CharField(max_length=255)
+from public.models import Users,Faculties,College,Major,Institute
 
 
 
@@ -28,15 +9,17 @@ Items=(
     ('3', 'unverified')
 )
 
+
+# settings.AUTH_USER_MODEL
 class Programs(models.Model):
 
     faculty                     = models.ForeignKey(Faculties, on_delete=models.CASCADE)
     Institute                   = models.ForeignKey(Institute, on_delete=models.CASCADE)
     college                     = models.ForeignKey(College, on_delete=models.CASCADE)
-    departmentSignatureApproval = models.ForeignKey(User, on_delete=models.DO_NOTHING ,related_name='Progdepartmentsignatureapproval')
-    facultySignatureApproval    = models.ForeignKey(User, on_delete=models.DO_NOTHING ,related_name='Progfacultysignatureapproval')
-    collegeSignatureApproval    = models.ForeignKey(User, on_delete=models.DO_NOTHING ,related_name='Progcollegesignatureapproval')
-    universitySignatureApproval = models.ForeignKey(User, on_delete=models.DO_NOTHING ,related_name='Proguniversitysignatureapproval')
+    departmentSignatureApproval = models.ForeignKey(Users, on_delete=models.DO_NOTHING ,related_name='Progdepartmentsignatureapproval')
+    facultySignatureApproval    = models.ForeignKey(Users, on_delete=models.DO_NOTHING ,related_name='Progfacultysignatureapproval')
+    collegeSignatureApproval    = models.ForeignKey(Users, on_delete=models.DO_NOTHING ,related_name='Progcollegesignatureapproval')
+    universitySignatureApproval = models.ForeignKey(Users, on_delete=models.DO_NOTHING ,related_name='Proguniversitysignatureapproval')
     faTitle                     = models.TextField()
     enTitle                     = models.TextField()
     timeRunMonth                = models.IntegerField()
@@ -54,10 +37,6 @@ class Programs(models.Model):
     universityApproval          = models.CharField(choices=Items, max_length=2)
     universityDateApproval      = models.DateTimeField(auto_now_add=True)
 
-
-
-class Major(models.Model):
-    name = models.CharField(max_length=63)
 
 
 class Location(models.Model):

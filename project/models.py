@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
-from research.models import Faculties, College, Major
-from internship.models import Student, DepartmentHead, Teachers
+from public.models import Users, Student, DepartmentHead, Teachers
+from public.models import Faculties, College, Major
+
 
 class ProjectForm(models.Model):
     student              = models.ForeignKey(Student, on_delete=models.DO_NOTHING ,related_name='PFstudent')
@@ -136,7 +136,7 @@ class ConfirmScores(models.Model):
     dhConfirmation     = models.BooleanField()
 
 class Opinions(models.Model):
-    person      = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    person      = models.ForeignKey(Users, on_delete=models.DO_NOTHING)
     student     = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
     seenDate    = models.DateTimeField()
     opinion     = models.TextField()

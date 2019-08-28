@@ -1,7 +1,6 @@
 import string
 import random
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail, BadHeaderError
 from django.contrib.auth.models import AnonymousUser
@@ -11,17 +10,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from Arion.utils import CsrfExemptSessionAuthentication
-from internship.models import Student
+from public.models import Users,Student
 from public.serializers import *
 from . import newpass
-
-
-
-# class RoleSignUp(APIView):
-#     def post(self, request):
-#         serializer = RoleSignUpSerializer(data = request.data)
-#
-
 
 
 
@@ -31,7 +22,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = SignUpSerializer(data = request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            serializer.save()
             return Response(
             {
                 'Message' : 'Account Create',
@@ -44,6 +35,35 @@ class SignUpView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class SignUpStudentView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def post(self, request):
+        serializer = SignUpStudentSerializer(
+            data = request.data,
+            context = {
+                'user' : request.user
+            }
+        )
+
+        print("******************",request.user)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+            {
+                'Message' : 'The Account Creation Process completed',
+                # 'data'  : serializer.data
+            },
+            status=status.HTTP_200_OK
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
 
 
 class SignIn(APIView):
