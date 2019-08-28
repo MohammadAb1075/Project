@@ -1,6 +1,6 @@
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import serializers
-from public.models import Users,Student
+from public.models import Users,Student,Teachers,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
 from public.models import Faculties, College, Major
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -17,16 +17,48 @@ class SignUpSerializer(serializers.ModelSerializer):
         )
         u.set_password(data['password'])
         u.save()
+
+        # if data['role'] == 'Student':
+        #     s=Student(
+        #     user = u,
+        #     name = data['first_name'] + ' ' + data['last_name']
+        #     )
+        #     s.save()
+
+        if data['role'] == 'Teacher':
+            t=Teachers(
+            user = u,
+            name = data['first_name'] + ' ' + data['last_name']
+            )
+            t.save()
+
+        if data['role'] == 'DepartmentHead':
+            d=DepartmentHead(
+            user = u,
+            name = data['first_name'] + ' ' + data['last_name']
+            )
+            d.save()
+
+        if data['role'] == 'FacultyTrainingStaff':
+            ft=FacultyTrainingStaff(
+            user = u,
+            name = data['first_name'] + ' ' + data['last_name']
+            )
+            ft.save()
+
+        if data['role'] == 'UniversityTrainingStaff':
+            ut=UniversityTrainingStaff(
+            user = u,
+            name = data['first_name'] + ' ' + data['last_name']
+            )
+            ut.save()
+
+
         return u
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Mete:
-#         fields=['id','first_name','last_name','username','role']
-
 class SignUpStudentSerializer(serializers.Serializer):
 
-    # user           = models.ForeignKey(Users, on_delete=models.CASCADE)
     college        = serializers.IntegerField(min_value=1)
     faculty        = serializers.IntegerField(min_value=1)
     major          = serializers.IntegerField(min_value=1)
@@ -79,6 +111,7 @@ class EditProfileSerializer(serializers.Serializer):
     average  = serializers.IntegerField(required=False)
     # image    = serializers.ImageField(required=False)
     phone    = serializers.CharField(required=False)
+
 
 
     def update(self,instance ,validated_data):
