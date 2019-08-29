@@ -46,8 +46,6 @@ class SignUpStudentView(APIView):
                 'user' : request.user
             }
         )
-
-        print("******************",request.user)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -103,8 +101,6 @@ class EditProfile(APIView):
     def put(self,request):
         serializer = EditProfileSerializer(instance=request.user,data=request.data)
         if serializer.is_valid():
-            print("***********************",request.user)
-            # serializer.update(request.user,request.data)
             serializer.save()
 
             return Response(
@@ -127,7 +123,7 @@ class RequestForgetEmail(APIView):
         serializer = ForgetEmailSerializer(data=request.data) #request.POST['email']
         if serializer.is_valid():
             try:
-                user = User.objects.get(username=serializer.data['username'])
+                user = Users.objects.get(username=serializer.data['username'])
             except ObjectDoesNotExist:
                 return Response(
                     {
@@ -137,7 +133,6 @@ class RequestForgetEmail(APIView):
                 )
 
             newpassword = newpass.get_code(10)
-            print("NEW",user)
             send_mail('New Password', 'This is Your New Password : {}'.format(newpassword),'utfarabi@gmail.com', user.username.split())
             user.set_password(newpassword)
             user.save()
@@ -160,12 +155,8 @@ class RequestForgetEmail(APIView):
 class LogOutView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        print(request.user)
-        print("************",request.session)
         request.session.flush()
         request.user = AnonymousUser()
-        print(request.user)
-        # logout(request, user)
         return Response(
             {
                 'message': 'Your account info is correct',

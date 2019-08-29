@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-AUTH_USER_MODEL = "public.Users" 
+AUTH_USER_MODEL = "public.Users"
 
 # Application definition
 
@@ -45,20 +45,21 @@ INSTALLED_APPS = [
     'project',
     'public'
 ]
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_USE_TLS = True
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER='utfarabi@gmail.com'
-# EMAIL_HOST_PASSWORD = '1234@!@#$'
-# EMAIL_PORT = 587
-# EMAIL_USE_SSL=False
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_PORT=587
-EMAIL_HOST_USER='mabdollah1375@gmail.com'
-EMAIL_HOST_PASSWORD='mabdollah75'
+EMAIL_HOST_USER='utfarabi@gmail.com'
+EMAIL_HOST_PASSWORD='*****'
 EMAIL_USE_TLS=True
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST='smtp.gmail.com'
+# EMAIL_PORT=587
+# EMAIL_HOST_USER='mabdollah1375@gmail.com'
+# EMAIL_HOST_PASSWORD='*******'
+# EMAIL_USE_TLS=True
 
 
 MIDDLEWARE = [

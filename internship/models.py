@@ -25,9 +25,12 @@ class InternShipPlace(models.Model):
 
 class InternshipForm(models.Model):
     student           = models.ForeignKey(Student, on_delete=models.CASCADE)
-    internShipPlace   = models.ForeignKey(InternShipPlace, on_delete=models.DO_NOTHING)
+    # internShipPlace   = models.ForeignKey(InternShipPlace, on_delete=models.DO_NOTHING)
     state             = models.ForeignKey(State, on_delete=models.DO_NOTHING)
     city              = models.ForeignKey(City, on_delete=models.DO_NOTHING)
+    # state             = models.CharField(max_length=63)
+    # city              = models.CharField(max_length=63)
+    internShipPlace   = models.CharField(max_length=127)
     phone             = models.CharField(max_length=15)
     address           = models.TextField()
     internShipWebSite = models.CharField(max_length=127)
