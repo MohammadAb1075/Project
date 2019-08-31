@@ -9,6 +9,7 @@ Roles = (
     ('DepartmentHead','Role4'),
     ('FacultyTrainingStaff','Role5'),
     ('UniversityTrainingStaff','Role6'),
+    ('InternshipHead','Role7')
 )
 
 class Users(AbstractUser):

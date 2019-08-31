@@ -6,22 +6,34 @@ from public.models import Faculties,College,Major
 class InternshipHead(models.Model):
     user    = models.ForeignKey(Users, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
-    name    = models.CharField(max_length=31)
+    name    = models.CharField(max_length=127)
     phone   = models.CharField(max_length=31)
     email   = models.EmailField()
+    def __str__(self):
+        return self.name
 
 
 class State(models.Model):
     name = models.CharField(max_length=63)
-
+    def __str__(self):
+        return self.name
 
 class City(models.Model):
     name = models.CharField(max_length=63)
+    def __str__(self):
+        return self.name
 
 
 class InternShipPlace(models.Model):
     name = models.CharField(max_length=127)
+    def __str__(self):
+        return self.name
 
+Semester = (
+    ('1','First Semester'),
+    ('2','Second Semester'),
+    ('3','Summer'),
+)
 
 class InternshipForm(models.Model):
     student           = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -33,9 +45,11 @@ class InternshipForm(models.Model):
     internShipPlace   = models.CharField(max_length=127)
     phone             = models.CharField(max_length=15)
     address           = models.TextField()
-    internShipWebSite = models.CharField(max_length=127)
-    term              = models.CharField(max_length=4)
-
+    internShipWebSite = models.CharField(null=True,blank=True,max_length=127)
+    term              = models.CharField(choices=Semester, max_length=15)
+    nameIH            = models.CharField(max_length=127)
+    phoneIH           = models.CharField(max_length=15)
+    emailIH           = models.EmailField()
 
 
 class Request(models.Model):
@@ -60,13 +74,13 @@ class RequestState(models.Model):
 
 
 class Opinions(models.Model):
-    person      = models.ForeignKey(Users, on_delete=models.DO_NOTHING, related_name='Operson')
-    student     = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Ouserstudent')
-    request     = models.ForeignKey(Request, on_delete=models.DO_NOTHING, related_name='Orequest')
-    seenDate    = models.DateTimeField()
-    opinion     = models.TextField()
-    opinionDate = models.DateTimeField()
-    opinionText = models.TextField()
+    person       = models.ForeignKey(Users, on_delete=models.DO_NOTHING, related_name='Operson')
+    student      = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Ouserstudent')
+    requeststate = models.ForeignKey(RequestState, on_delete=models.DO_NOTHING, related_name='Orequest')
+    seenDate     = models.DateTimeField()
+    opinion      = models.TextField()
+    opinionDate  = models.DateTimeField()
+    opinionText  = models.TextField()
 
 
 
