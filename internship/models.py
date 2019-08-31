@@ -15,6 +15,8 @@ class State(models.Model):
     name = models.CharField(max_length=63)
 
 
+
+
 class City(models.Model):
     name = models.CharField(max_length=63)
 
