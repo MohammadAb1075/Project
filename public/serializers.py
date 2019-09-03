@@ -1,3 +1,4 @@
+import re
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import serializers
 from public.models import Users,Student,Teachers,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
@@ -8,6 +9,18 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = Users
         fields = ['id','first_name','last_name','username','password','role']
         # fields = '__all__'
+
+    def validate(self, data):
+        if data['role'] == 'Student':
+            x = re.search("@ut.ac.com", data['username'])
+            if x is None:
+                raise serializers.ValidationError(
+                    'Username Must Be Tehran University Email!!!'
+                )
+        return data
+
+
+
     def create(self, data):
         u = Users(
             first_name = data['first_name'],
@@ -62,12 +75,12 @@ class SignUpStudentSerializer(serializers.Serializer):
     college        = serializers.IntegerField(min_value=1)
     faculty        = serializers.IntegerField(min_value=1)
     major          = serializers.IntegerField(min_value=1)
-    credits        = serializers.IntegerField()
-    average        = serializers.FloatField()
+    credits        = serializers.IntegerField(min_value=0,max_value=150)
+    average        = serializers.FloatField(min_value=1,max_value=20)
     studentNumber  = serializers.CharField(max_length=9)
     phone          = serializers.CharField(max_length=11)
     nationalCode   = serializers.CharField(max_length=10)
-    name           = serializers.CharField(required= False,max_length=31)
+    name           = serializers.CharField(required=False,max_length=31)
 
     def create(self, data):
         c = College.objects.get(

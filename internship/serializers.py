@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 from public.models import *
 from internship.models import *
@@ -41,10 +42,25 @@ class InternShipFormSerializer(serializers.Serializer):
     state = serializers.IntegerField(min_value=1)
     city = serializers.IntegerField(min_value=1)
     internShipPlace = serializers.CharField()
-    phone = serializers.CharField()
+    phone = serializers.CharField(max_length=15)
     address = serializers.CharField()
-    internShipWebSite = serializers.CharField()
+    internShipWebSite = serializers.CharField(required=False)
     term = serializers.CharField()
+    nameIH = serializers.CharField()
+    phoneIH =serializers.CharField(max_length=15)
+    emailIH = serializers.EmailField()
+
+
+    def validate(self, data):
+        x1 = re.findall("[a-z]", data['phone'])
+        x2 = re.findall("[a-z]", data['phoneIH'])
+        if x1 != [] or x2 != []:
+            print("***********",self.context['student'].credits)
+            raise serializers.ValidationError(
+                'The Phone Number Should Only Be In Number !!!'
+            )
+        return data
+
 
     def create(self, data):
 
@@ -61,8 +77,21 @@ class InternShipFormSerializer(serializers.Serializer):
             internShipPlace = data['internShipPlace'],
             phone = data['phone'],
             address = data ['address'],
-            internShipWebSite = data['internShipWebSite'],
-            term = data['term']
+            term = data['term'],
+            nameIH = data['nameIH'],
+            phoneIH = data['phoneIH'],
+            emailIH = data['emailIH']
         )
+        if 'internShipWebSite' in data:
+            form.internShipWebSite = data['internShipWebSite']
+
         form.save()
         return form
+
+
+
+class CheckInternShipSerializer(serializers.ModelSerializer):
+    student = StudentInformationSerializer()
+    class Meta:
+        model = InternshipForm
+        fields = '__all__'

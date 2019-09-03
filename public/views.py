@@ -99,21 +99,29 @@ class SignIn(APIView):
 class EditProfile(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def put(self,request):
-        serializer = EditProfileSerializer(instance=request.user,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-
+        if type(request.user) is AnonymousUser:
             return Response(
                 {
-                    'message': 'your account have been Edited successfuly',
-                    'data': serializer.data
+                    'message' : 'UnAuthorize !!!'
                 },
-                status=status.HTTP_200_OK
+                status=status.HTTP_401_UNAUTHORIZED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        else:
+            serializer = EditProfileSerializer(instance=request.user,data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response(
+                    {
+                        'message': 'your account have been Edited successfuly',
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RequestForgetEmail(APIView):
@@ -155,11 +163,20 @@ class RequestForgetEmail(APIView):
 class LogOutView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        request.session.flush()
-        request.user = AnonymousUser()
-        return Response(
-            {
-                'message': 'Your account info is correct',
-            },
-            status=status.HTTP_200_OK
-        )
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        else:
+            request.session.flush()
+            request.user = AnonymousUser()
+            return Response(
+                {
+                    'message': 'Your account info is correct',
+                },
+                status=status.HTTP_200_OK
+            )

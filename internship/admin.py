@@ -7,7 +7,7 @@ admin.site.register(City)
 admin.site.register(InternShipPlace)
 admin.site.register(InternshipForm)
 admin.site.register(Request)
-# admin.site.register(UniversityTrainingStaff)
+admin.site.register(InternshipHead)
 #
 # admin.site.register(Faculties)
 # admin.site.register(Department)
