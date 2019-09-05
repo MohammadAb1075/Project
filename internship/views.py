@@ -10,6 +10,11 @@ from internship.serializers import *
 
 
 
+# class InternShipStateView(APIView):
+#     def get(self, request):
+#         internshipstate = InternShipState
+
+
 class InternShipFormView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def get(self, request):
@@ -21,6 +26,8 @@ class InternShipFormView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
+            # internshipstate=InternShipState(
+            # ).sava()
             ###Show Student Information
             student = Student.objects.get(user = request.user)
             serializer = StudentInformationSerializer(instance=student)
@@ -28,7 +35,7 @@ class InternShipFormView(APIView):
             if student.credits < 80 :
                 return Response(
                         {
-                            'message' : 'You Cant Send Internship Request!!!',
+                            'message' : 'Credits Error',
 
                             'data' : serializer.data
                         },
@@ -87,7 +94,6 @@ class CheckFacultyTrainingStaffView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         else:
-            print("******************",request.user.role)
             internshipform = InternshipForm.objects.all()
             serializer = CheckInternShipSerializer(instance=internshipform,many=True)
             return Response(
@@ -98,29 +104,46 @@ class CheckFacultyTrainingStaffView(APIView):
             )
 
 
-class CheckDepartmentHeadView(APIView):
-    def get(self, request):
-        if type(request.user) is AnonymousUser :
-            return Response(
-                {
-                    'message' : 'UnAuthorize !!!'
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        elif request.user.role != 'DepartmentHead':
-            return Response(
-                {
-                    'message' : 'InAccessibility !!!'
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-        else:
+# class RequestStateView(APIView):
+#     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+#     if type(request.user) is AnonymousUser :
+#         return Response(
+#             {
+#                 'message' : 'UnAuthorize !!!'
+#             },
+#             status=status.HTTP_401_UNAUTHORIZED
+#         )
+#     else:
+#         pass
 
-            internshipform = InternshipForm.objects.all()
-            serializer = CheckInternShipSerializer(instance=internshipform,many=True)
-            return Response(
-                {
-                    'data' : serializer.data
-                },
-                status=status.HTTP_200_OK
-            )
+
+
+
+
+
+# class CheckDepartmentHeadView(APIView):
+#     def get(self, request):
+#         if type(request.user) is AnonymousUser :
+#             return Response(
+#                 {
+#                     'message' : 'UnAuthorize !!!'
+#                 },
+#                 status=status.HTTP_401_UNAUTHORIZED
+#             )
+#         elif request.user.role != 'DepartmentHead':
+#             return Response(
+#                 {
+#                     'message' : 'InAccessibility !!!'
+#                 },
+#                 status=status.HTTP_403_FORBIDDEN
+#             )
+#         else:
+#             print("******************",InternshipForm.objects.all()[0].student.major)
+#             internshipform = InternshipForm.objects.all()
+#             serializer = CheckInternShipSerializer(instance=internshipform,many=True)
+#             return Response(
+#                 {
+#                     'data' : serializer.data
+#                 },
+#                 status=status.HTTP_200_OK
+#             )

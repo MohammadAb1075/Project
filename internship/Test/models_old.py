@@ -1,6 +1,6 @@
 from django.db import models
 
- 
+
 # from public.models import Users,Teachers,Student,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
 from public.models import Users,Student
 from public.models import Faculties,College,Major

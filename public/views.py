@@ -16,11 +16,12 @@ from . import newpass
 
 
 
-
 class SignUpView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        serializer = SignUpSerializer(data = request.data)
+        # serializer = SignUpSerializer(data = request.data, many=True)
+
+        serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -40,6 +41,7 @@ class SignUpView(APIView):
 class SignUpStudentView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
+        print("***************",request.user)
         serializer = SignUpStudentSerializer(
             data = request.data,
             context = {
@@ -98,6 +100,27 @@ class SignIn(APIView):
 
 class EditProfile(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+
+    def get(self, request):
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            information = Student.objects.get(user = request.user)
+            serializer = StudentInformationSerializer(instance=information)
+            # serializer = StudentInformationSerializer(instance=information,many=True)
+            return Response(
+                {
+                    'data' : serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+
     def put(self,request):
         if type(request.user) is AnonymousUser:
             return Response(
@@ -107,7 +130,8 @@ class EditProfile(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
-            serializer = EditProfileSerializer(instance=request.user,data=request.data)
+            information = Student.objects.get(user = request.user)
+            serializer = EditProfileSerializer(instance=information,data=request.data)
             if serializer.is_valid():
                 serializer.save()
 
