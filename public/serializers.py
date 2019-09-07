@@ -30,15 +30,15 @@ class SignUpSerializer(serializers.ModelSerializer):
     #     return data
 
 
-class SignUpSerializer(serializers.Serializer):
-    first_name = serializers.CharField(max_length=31)
-    last_name = serializers.CharField(max_length=31)
-    username = serializers.EmailField(max_length=31)
-    password = serializers.CharField(max_length=31)
-    roles =  serializers.IntegerField()
+# class SignUpSerializer(serializers.Serializer):
+#     first_name = serializers.CharField(max_length=31)
+#     last_name = serializers.CharField(max_length=31)
+#     username = serializers.EmailField(max_length=31)
+#     password = serializers.CharField(max_length=31)
+#     roles =  serializers.IntegerField()
 
     def create(self, data):
-        r=Role.objects.filter(id= data['roles'])
+        # r=Role.objects.filter(id= data['roles'])
         u = Users(
             first_name = data['first_name'],
             last_name = data['last_name'],
@@ -47,32 +47,40 @@ class SignUpSerializer(serializers.Serializer):
         )
 
         u.set_password(data['password'])
-        u.save()
-        # for i in data['roles']:
-        #     u.roles.add(i)
+        # u.save()
+        for i in data['roles']:
+            u.roles.add(i)
 
-        u.roles.add(data['roles'])
+        # u.roles.add(r)
         u.save()
         return u
 
 
 
+
+
+
+
 class SignUpStudentSerializer(serializers.Serializer):
 
-
+    # college        = serializers.IntegerField(min_value=1)
+    # faculty        = serializers.IntegerField(min_value=1)
     major          = serializers.IntegerField(min_value=1)
     credits        = serializers.IntegerField(min_value=0,max_value=150)
     average        = serializers.FloatField(min_value=1,max_value=20)
     studentNumber  = serializers.CharField(max_length=9)
     phone          = serializers.CharField(max_length=11)
     nationalCode   = serializers.CharField(max_length=10)
-
+    name           = serializers.CharField(required=False,max_length=31)
 
     def create(self, data):
-
+        # c = College.objects.get(
+        # id=data['college'])
+        # f = Faculties.objects.get(
+        # id=data['faculty'])
         m = Major.objects.get(
         id=data['major'])
-        print("***************",self.context['user'])
+
         s = Student(
             user          = self.context['user'],#self.context['user'],
             # college       = c,

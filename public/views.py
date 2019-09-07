@@ -27,7 +27,7 @@ class SignUpView(APIView):
             return Response(
             {
                 'Message' : 'Account Create',
-                # 'data'  : serializer.data
+                'data'  : serializer.data
             },
             status=status.HTTP_200_OK
             )
@@ -62,6 +62,8 @@ class SignUpStudentView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
 
 
 class SignIn(APIView):
