@@ -19,6 +19,8 @@ class State(models.Model):
     def __str__(self):
         return self.namestate
 
+
+
 class City(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     namecity  = models.CharField(max_length=63)
@@ -95,6 +97,9 @@ class InternShip(models.Model):
     supervisorReportUploadUrl = models.TextField()
     supervisorEmail           = models.EmailField()
     internShipState           = models.BooleanField()
+
+
+
 
 
 
