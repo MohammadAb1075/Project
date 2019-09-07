@@ -1,6 +1,6 @@
 from django.db import models
 
- 
+
 # from public.models import Users,Teachers,Student,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
 from public.models import Users,Student
 from public.models import Faculties,College,Major
@@ -18,8 +18,6 @@ class State(models.Model):
     namestate = models.CharField(max_length=63)
     def __str__(self):
         return self.namestate
-
-
 
 class City(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
