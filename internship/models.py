@@ -1,7 +1,5 @@
 from django.db import models
 
- 
-# from public.models import Users,Teachers,Student,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
 from public.models import Users,Student
 from public.models import Faculties,College,Major
 
@@ -30,6 +28,7 @@ class InternShipPlace(models.Model):
     nameplace         = models.CharField(max_length=127)
     city              = models.ForeignKey(City, on_delete=models.DO_NOTHING)
     address           = models.TextField()
+    phone             = models.CharField(max_length=15)
     internShipWebSite = models.CharField(null=True,blank=True,max_length=127)
     def __str__(self):
         return self.nameplace
@@ -47,12 +46,12 @@ class InternshipForm(models.Model):
 
 
 class Request(models.Model):
-    student                = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Rstudent')
+    # student                = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Rstudent')
     internShipForm         = models.ForeignKey(InternshipForm, on_delete=models.DO_NOTHING, related_name='Rinternshipform')
     title                  = models.CharField(max_length=63)
-    text                   = models.TextField()
-    internShipConfirmation = models.IntegerField()
-    agreementUploadedUrl   = models.TextField()
+    text                   = models.TextField(null=True)
+    internShipConfirmation = models.IntegerField(null=True)
+    agreementUploadedUrl   = models.TextField(null=True)
 
 
 # States =(

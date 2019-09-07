@@ -4,10 +4,19 @@ from public.models import *
 from internship.models import *
 
 
+
+
+class RoleInformation(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
 class UsreInformation(serializers.ModelSerializer):
+    roles = RoleInformation(many=True)
     class Meta:
         model = Users
-        fields = ['first_name','last_name','username','date_joined','role','last_login']
+        fields = ['first_name','last_name','username','roles']
+
 
 class CollogeInformation(serializers.ModelSerializer):
     class Meta:
@@ -15,88 +24,108 @@ class CollogeInformation(serializers.ModelSerializer):
         fields = '__all__'
 
 class FacultyInformation(serializers.ModelSerializer):
+    college = CollogeInformation()
     class Meta:
         model = Faculties
         fields = '__all__'
+
 class MajorInformation(serializers.ModelSerializer):
+    faculty = FacultyInformation()
     class Meta:
         model = Major
         fields = '__all__'
 
 
 class StudentInformationSerializer(serializers.ModelSerializer):
-    user = UsreInformation()
-    college = CollogeInformation()
-    faculty = FacultyInformation()
+    user  = UsreInformation()
     major = MajorInformation()
     class Meta:
         model = Student
         fields = '__all__'
 
 
-# class InternShipFormSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = InternshipForm
-#         fields = '__all__'
+class InternShipFormSerializer(serializers.Serializer):
+    nameplace         = serializers.CharField(max_length=15)
+    city              = serializers.IntegerField(min_value=1)
+    address           = serializers.CharField()
+    phone             = serializers.CharField()
+    internShipWebSite = serializers.CharField(required=False)
+    term              = serializers.CharField()
 
-# class InternShipFormSerializer(serializers.Serializer):
-#     state = serializers.IntegerField(min_value=1)
-#     city = serializers.IntegerField(min_value=1)
-#     internShipPlace = serializers.CharField()
-#     phone = serializers.CharField(max_length=15)
-#     address = serializers.CharField()
-#     internShipWebSite = serializers.CharField(required=False)
-#     term = serializers.CharField()
-#
-#
-#
-#     def validate(self, data):
-#         x1 = re.findall("[a-z]", data['phone'])
-#         x2 = re.findall("[a-z]", data['phoneIH'])
-#         if x1 != [] or x2 != []:
-#             print("***********",self.context['student'].credits)
-#             raise serializers.ValidationError(
-#                 'The Phone Number Should Only Be In Number !!!'
-#             )
-#         return data
-#
-#
-#     def create(self, data):
-#
-#         # isp=InternShipPlace(
-#         #     name = data['internShipPlace']
-#         # ).save()
-#         st=State.objects.get(id=data['state'])
-#         ct=City.objects.get(id=data['city'])
-#
-#         form=InternshipForm(
-#             student = self.context['student'],
-#             state = st,
-#             city = ct,
-#             internShipPlace = data['internShipPlace'],
-#             phone = data['phone'],
-#             address = data ['address'],
-#             term = data['term'],
-#             nameIH = data['nameIH'],
-#             phoneIH = data['phoneIH'],
-#             emailIH = data['emailIH']
-#         )
-#         if 'internShipWebSite' in data:
-#             form.internShipWebSite = data['internShipWebSite']
-#
-#         form.save()
-#
-#         # internshipstate=InternShipState(
-#         #     name='Submit Request'
-#         # )
-#         #
-#
-#         return form
-#
-#
-#
-# class CheckInternShipSerializer(serializers.ModelSerializer):
-#     student = StudentInformationSerializer()
-#     class Meta:
-#         model = InternshipForm
-#         fields = '__all__'
+    # def validate(self, data):
+    #     x1 = re.findall("[a-z]", data['phone'])
+    #     if x1 != []:
+    #         print("***********",self.context['student'].credits)
+    #         raise serializers.ValidationError(
+    #             'The Phone Number Should Only Be In Number !!!'
+    #         )
+    #     return data
+
+    def create(self, data):
+        ct = City.objects.get(id=data['city'])
+        isp = InternShipPlace(
+            nameplace = data['nameplace'],
+            city = ct,
+            address =  data['address'],
+            phone = data['phone']
+        )
+        if 'internShipWebSite' in data:
+            isp.internShipWebSite = data['internShipWebSite']
+        isp.save()
+
+        form=InternshipForm(
+            internshipPlace = isp,
+            student = self.context['student'],
+            term = data['term']
+        )
+        form.save()
+
+        r=Request(
+            internShipForm =  form,
+            title = 'InternShipRequest'
+        )
+        r.save()
+
+        return form
+
+
+class StateInformation(serializers.ModelSerializer):
+    class Meta:
+        model = State
+        fields = '__all__'
+
+class CityInformation(serializers.ModelSerializer):
+    state = StateInformation()
+    class Meta:
+        model = City
+        fields = '__all__'
+
+class InternShipPlaceInformation(serializers.ModelSerializer):
+    city = CityInformation()
+    class Meta:
+        model = InternShipPlace
+        fields = '__all__'
+
+
+
+class InternShipInformation(serializers.ModelSerializer):
+    student = StudentInformationSerializer()
+    internshipPlace = InternShipPlaceInformation()
+    class Meta:
+        model = InternshipForm
+        fields = '__all__'
+
+
+
+class RequestInformationSerializer(serializers.ModelSerializer):
+    internShipForm = InternShipInformation()
+    class Meta:
+        model = Request
+        fields = '__all__'
+
+
+
+class RequestInformationGETSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    usernaem = serializers.CharField(required=False)
