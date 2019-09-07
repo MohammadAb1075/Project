@@ -1,14 +1,14 @@
 from django.utils import timezone
 
-def email(subject,text):
-    # this is how we emailing
+# def email(subject,text):
+#     # this is how we emailing
 
 
 
 
 
 
-def hasher(user):
+def salam(user):
     string = ''
     username = user.username
     dateTime = timezone.now()
