@@ -100,6 +100,9 @@ class InternShip(models.Model):
 
 
 
+
+
+
 class AttendanceTable(models.Model):
     internShip             = models.ForeignKey(InternShip,on_delete=models.DO_NOTHING)
     startTime              = models.DateTimeField()
