@@ -8,12 +8,12 @@ from public.models import Faculties, College, Major
 
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    # roles = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    class Meta:
-        model = Users
-        fields = ['id','first_name','last_name','username','password','roles']
-        # fields = '__all__'
+# class SignUpSerializer(serializers.ModelSerializer):
+#     # roles = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+#     class Meta:
+#         model = Users
+#         fields = ['id','first_name','last_name','username','password','roles']
+#         # fields = '__all__'
 
     # def validate(self, data):
     #     # if data['role'] == 'Student':
@@ -30,12 +30,12 @@ class SignUpSerializer(serializers.ModelSerializer):
     #     return data
 
 
-# class SignUpSerializer(serializers.Serializer):
-#     first_name = serializers.CharField(max_length=31)
-#     last_name = serializers.CharField(max_length=31)
-#     username = serializers.EmailField(max_length=31)
-#     password = serializers.CharField(max_length=31)
-#     roles =  serializers.IntegerField()
+class SignUpSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=31)
+    last_name = serializers.CharField(max_length=31)
+    username = serializers.EmailField(max_length=31)
+    password = serializers.CharField(max_length=31)
+    roles =  serializers.IntegerField(min_value=1)
 
     def create(self, data):
         # r=Role.objects.filter(id= data['roles'])
@@ -45,13 +45,13 @@ class SignUpSerializer(serializers.ModelSerializer):
             username = data['username'],
             # roles = data['roles']
         )
-
+        print("*************************",data['roles'])
         u.set_password(data['password'])
-        # u.save()
-        for i in data['roles']:
-            u.roles.add(i)
+        u.save()
+        # for i in data['roles']:
+        #     u.roles.add(i)
 
-        # u.roles.add(r)
+        u.roles.add(data['roles'])
         u.save()
         return u
 

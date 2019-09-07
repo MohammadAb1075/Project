@@ -19,15 +19,15 @@ from . import newpass
 class SignUpView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        # serializer = SignUpSerializer(data = request.data, many=True)
+        serializer = SignUpSerializer(data = request.data)
 
-        serializer = SignUpSerializer(data=request.data)
+        # serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
             {
                 'Message' : 'Account Create',
-                'data'  : serializer.data
+                # 'data'  : serializer.data
             },
             status=status.HTTP_200_OK
             )
