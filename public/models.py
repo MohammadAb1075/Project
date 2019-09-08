@@ -12,12 +12,12 @@ class Users(AbstractUser):
 
 Roles = (
     # ('User','Role1'),
-    ('Student','Role1'),
-    ('Teacher','Role2'),
-    ('DepartmentHead','Role3'),
-    ('FacultyTrainingStaff','Role4'),
-    ('UniversityTrainingStaff','Role5'),
-    ('InternshipHead','Role6')
+    ('Student','Student'),
+    ('Teacher','Teacher'),
+    ('DepartmentHead','DepartmentHead'),
+    ('FacultyTrainingStaff','FacultyTrainingStaff'),
+    ('UniversityTrainingStaff','UniversityTrainingStaff'),
+    ('InternshipHead','InternshipHead')
 )
 
 

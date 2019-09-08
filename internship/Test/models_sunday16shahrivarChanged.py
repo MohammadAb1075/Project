@@ -1,4 +1,7 @@
 from django.db import models
+
+
+# from public.models import Users,Teachers,Student,DepartmentHead,FacultyTrainingStaff,UniversityTrainingStaff
 from public.models import Users,Student
 from public.models import Faculties,College,Major
 
@@ -39,32 +42,54 @@ Semester = (
     ('3','Summer'),
 )
 
+# class InternshipForm(models.Model):
+#     internshipPlace = models.ForeignKey(InternShipPlace,on_delete=models.CASCADE)
+#     student         = models.ForeignKey(Student, on_delete=models.CASCADE)
+#     term            = models.CharField(choices=Semester, max_length=15)
+
+
 class Request(models.Model):
-    internshipPlace        = models.ForeignKey(InternShipPlace,on_delete=models.DO_NOTHING)
-    student                = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
+    internshipPlace        = models.ForeignKey(InternShipPlace,on_delete=models.CASCADE)
+    student                = models.ForeignKey(Student, on_delete=models.CASCADE)
     term                   = models.CharField(choices=Semester, max_length=15)
-    title                  = models.CharField(max_length=31)
-    comment                = models.TextField(null=True,blank=True)#text ==>comment
+    # internShipForm         = models.ForeignKey(InternshipForm, on_delete=models.DO_NOTHING, related_name='Rinternshipform')
+    title                  = models.CharField(max_length=63)
+    comment                = models.TextField(null=True)#text ==>comment
     state                  = models.IntegerField(default=0)
     opinion                = models.BooleanField(default=False)
-    agreementUploadedUrl   = models.TextField(null=True,blank=True)
+    agreementUploadedUrl   = models.TextField(null=True)
 
-    def __str__(self):
-            return "{} from : {}".format(
-            self.self.title,
-            self.self.student.user.first_name + ' ' + self.student.user.last_name
-        )
+# States =(
+#     ('No Request','State0'),
+#     ('Submit Request','State1'),
+#     ('FacultyTrainingStaff','State2'),
+#     ('DepartmentHead','State3'),
+#     ('UniversityTrainingStaff','State4'),
+#     ('FacultyTrainingStaff','Role5'),
+#     ('UniversityTrainingStaff','Role6'),
+#     ('Final Approval','Role7')
+# )
+#
+
+# class RequestState(models.Model):         ######Combine Request#######
+#     request                 = models.OneToOneField(Request, on_delete=models.DO_NOTHING, related_name='RSrequest')
+#     state                   = models.IntegerField()
+
 
 class Opinions(models.Model):
     user         = models.ForeignKey(Users, on_delete=models.DO_NOTHING, related_name='Operson')
+    # student      = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='Ouserstudent')
+    # requeststate = models.ForeignKey(RequestState, on_delete=models.DO_NOTHING, related_name='Orequest')
     request      = models.ForeignKey(Request, on_delete=models.DO_NOTHING, related_name='Orequest')
     seenDate     = models.DateTimeField()
+    # opinion      = models.BooleanField()
     opinionDate  = models.DateTimeField()
-    opinionText  = models.TextField(null=True,blank=True)
+    opinionText  = models.TextField(null=True)
 
 
 class InternShip(models.Model):
     student                   = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
+    # internshiphead            = models.ForeignKey(InternshipHead, on_delete=models.DO_NOTHING)
     internshiphead            = models.ForeignKey(InternshipHead, on_delete=models.DO_NOTHING)
     gtOpinion                 = models.ForeignKey(Opinions, on_delete=models.DO_NOTHING)
     guideTeacher              = models.ForeignKey('internship.Choosing', on_delete=models.DO_NOTHING )#choosing
@@ -85,6 +110,7 @@ class WeeklyConfirmarion(models.Model):
 
 
 class AttendanceTable(models.Model):
+    # weeklyconfirmarion     = models.ForeignKey(WeeklyConfirmarion, on_delete=models.DO_NOTHING)
     internShip             = models.ForeignKey(InternShip, on_delete=models.DO_NOTHING)
     startTime              = models.DateTimeField()
     endTime                = models.DateTimeField()
@@ -104,11 +130,20 @@ class WeeklyReport(models.Model):
 class Choosing(models.Model):
     user       = models.ForeignKey(Users, on_delete=models.DO_NOTHING)
     student    = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
+    # departmentHead = models.ForeignKey(DepartmentHead,on_delete=models.DO_NOTHING)
+    # GuideTeacher   = models.ForeignKey(Teachers,on_delete=models.DO_NOTHING)
+    # internShip = models.ForeignKey(InternShip, on_delete=models.DO_NOTHING)
     gtOpinion  = models.ForeignKey(Opinions, on_delete=models.DO_NOTHING)
 
 
 
+
+
+
 class Student_InternShip(models.Model):
+    # student             = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
+    # supervisor          = models.ForeignKey(InternshipHead, on_delete=models.DO_NOTHING)
+    # guideTeacher = models.ForeignKey(Teachers,on_delete=models.DO_NOTHING)
     internShip          = models.ForeignKey(InternShip ,on_delete=models.DO_NOTHING)
     gtgrade             = models.FloatField()
     gtgradeconfirmation = models.BooleanField()
