@@ -48,6 +48,7 @@ class Request(models.Model):
     state                  = models.IntegerField(default=0)
     opinion                = models.BooleanField(default=False)
     agreementUploadedUrl   = models.TextField(null=True,blank=True)
+    reqdate                = models.DateTimeField()
 
     def __str__(self):
             return "{} From : {}".format(

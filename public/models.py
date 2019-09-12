@@ -88,8 +88,8 @@ class Faculties(models.Model):
 
 
 class Department(models.Model):
-    faculty = models.ForeignKey(Faculties, on_delete=models.CASCADE)
-    departmentName    = models.CharField(max_length=255)
+    faculty        = models.ForeignKey(Faculties, on_delete=models.CASCADE)
+    departmentName = models.CharField(max_length=255)
 
     def __str__(self):
         return self.departmentName

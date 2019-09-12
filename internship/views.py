@@ -79,11 +79,68 @@ class RequestInternShipView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+    def put(self,request):
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            editcredit = Student.objects.get(user = request.user)
+            serializer = EditCreditsSerializer(instance=editcredit,data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response(
+                    {
+                        'message': 'Credits Edited successfuly',
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class RequestFlowView(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def get(self,request):
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        student = Student.objects.get(user = request.user)
+        opinion = Opinion.objects.get(request__student=student)
+        print("********************",opinion)
+        serializer = RequestFlowSerializer(instance=opinion)
+
+        return Response(
+            {
+                'data' : serializer.data
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+
+
+
+
+s
+
+
+
 
 
 class CheckFacultyTrainingStaffView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
-
     def get(self,request):
         if type(request.user) is AnonymousUser:
             return Response(
@@ -103,7 +160,7 @@ class CheckFacultyTrainingStaffView(APIView):
                 )
 
 
-        opinion_serializer = RequestGetSerializer(data=request.GET) #data=request.data
+        opinion_serializer = OpinionGetFilterSerializer(data=request.GET) #data=request.data
         if opinion_serializer.is_valid():
             opinion = Opinion.objects.filter(request__state=1)
             if 'first_name' in opinion_serializer.data:
@@ -123,7 +180,11 @@ class CheckFacultyTrainingStaffView(APIView):
                     request__title=opinion_serializer.data['title']
                 )
             serializer=OpinionSerializers(instance=opinion,many=True)
-
+            for op in opinion:
+                print("**********",op.seenDate)
+                if op.seenDate is None:
+                    op.seenDate=datetime.now()
+                    op.save()
             return Response(
                 {
                     'data' : serializer.data
@@ -134,6 +195,57 @@ class CheckFacultyTrainingStaffView(APIView):
             return Response(
                 opinion_serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # else:
+        #     information = Student.objects.get(user = request.user)
+        #     serializer = EditProfileSerializer(instance=information,data=request.data)
+        #     if serializer.is_valid():
+        #         serializer.save()
+        #
+        #         return Response(
+        #             {
+        #                 'message': 'your account have been Edited successfuly',
+        #                 'data': serializer.data
+        #             },
+        #             status=status.HTTP_200_OK
+        #         )
+        #     return Response(
+        #         serializer.errors,
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+
+    def put(self, request):
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            opinion = Opinion.objects.get(id = request.data['id'])
+            serializer = OpinionEditSerializers(instance=opinion,data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {
+                    'message': 'Your Opinion Was Recorded Successfuly',
+                    # 'data': serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            return Response(
+                {
+                "user" : serializer.data
+                },
+                status=status.HTTP_200_OK
             )
 
 
@@ -170,32 +282,3 @@ class CheckFacultyTrainingStaffView(APIView):
     #     )
     #
     #
-
-
-
-    def post(self, request):
-        if type(request.user) is AnonymousUser:
-            return Response(
-                {
-                    'message' : 'UnAuthorize !!!'
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = UserSerializer(data=request.POST)#data=request.data
-
-        if serializer.is_valid():
-            serializer.save()
-
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        return Response(
-            {
-            "user" : serializer.data
-            },
-            status=status.HTTP_201_CREATED
-        )

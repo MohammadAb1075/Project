@@ -41,7 +41,6 @@ class SignUpView(APIView):
 class SignUpStudentView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     def post(self, request):
-        print("***************",request.user)
         serializer = SignUpStudentSerializer(
             data = request.data,
             context = {

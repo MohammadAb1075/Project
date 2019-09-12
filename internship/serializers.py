@@ -5,19 +5,6 @@ from rest_framework import serializers
 from public.models import *
 from internship.models import *
 
-
-class RoleInformation(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = '__all__'
-
-class UsreInformation(serializers.ModelSerializer):
-    roles = RoleInformation(many=True)
-    class Meta:
-        model = Users
-        fields = ['first_name','last_name','username','date_joined','roles','last_login']
-
-
 class CollogeInformation(serializers.ModelSerializer):
     class Meta:
         model = College
@@ -30,6 +17,23 @@ class FacultyInformation(serializers.ModelSerializer):
         model = Faculties
         fields = '__all__'
 
+class DepartmentInformation(serializers.ModelSerializer):
+    faculty = FacultyInformation()
+    class Meta:
+        model = Department
+        fields = '__all__'
+
+class RoleInformation(serializers.ModelSerializer):
+    department = DepartmentInformation(many=True)
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+class UsreInformation(serializers.ModelSerializer):
+    roles = RoleInformation(many=True)
+    class Meta:
+        model = Users
+        fields = ['first_name','last_name','username','date_joined','roles','last_login']
 
 class MajorInformation(serializers.ModelSerializer):
     faculty = FacultyInformation()
@@ -91,6 +95,8 @@ class RequestFormInternShipSerializer(serializers.Serializer):
     term = serializers.CharField()
     title = serializers.CharField(required=False,allow_blank=True)
     state = serializers.IntegerField(required=False)
+    reqdate = serializers.DateTimeField(required=False)
+
 
     def validate(self, data):
         x1 = re.findall("[a-z]", data['phone'])
@@ -126,17 +132,14 @@ class RequestFormInternShipSerializer(serializers.Serializer):
             internshipPlace = isp,
             title = 'InternShip',
             term = data['term'],
+            reqdate = datetime.now(),
             state = 1
         )
         request.save()
 
         if 'comment' in data:
             request.comment = data['comment']
-        # request.save()
-        # request.title='InternShip'
-        print("***********",request.student.major)
         r=Role.objects.get(Q(role='FacultyTrainingStaff'))
-        # print("***********",r.department.all()[0])
         u=Users.objects.get(roles=r)
         try:
             opinion=Opinion(
@@ -153,6 +156,22 @@ class RequestFormInternShipSerializer(serializers.Serializer):
                 'Error!!!'
             )
 
+
+
+
+class EditCreditsSerializer(serializers.Serializer):
+    credits  = serializers.IntegerField(required=False)
+
+    def update(self, instance, validated_data):
+        if 'credits' in  validated_data:
+            instance.credits  = validated_data['credits']
+
+        instance.save()
+        return  instance
+
+
+
+
 class OpinionSerializers(serializers.ModelSerializer):
     # user = UsreInformation()
     request = RequestInformationGETSerializer()
@@ -161,7 +180,7 @@ class OpinionSerializers(serializers.ModelSerializer):
         exclude=['user']
 
 
-class RequestGetSerializer(serializers.Serializer):
+class OpinionGetFilterSerializer(serializers.Serializer):
     first_name = serializers.CharField(
         required=False, allow_blank=False, max_length=100)
     last_name = serializers.CharField(
@@ -170,17 +189,32 @@ class RequestGetSerializer(serializers.Serializer):
         required=False, allow_blank=False, max_length=100)
     title = serializers.CharField(
         required=False, allow_blank=False, max_length=100)
-    
-# class OpinionSerializers(serializers.Serializer):
-#     request = RequestInformationGETSerializer()
-#     seenDate = serializers.DateTimeField(required=False)
-#     opinionDate = serializers.DateTimeField(required=False)
-#     opinionText = serializers.CharField(required=False)
-#
-#     def update(self,instance ,validated_data):
-#         instance.seenDate = datatime.now()
-#         instance.save()
-#         return  instance
+
+
+
+class OpinionEditSerializers(serializers.Serializer):
+    seenDate = serializers.DateTimeField(required=False)
+    opinionDate = serializers.DateTimeField(required=False)
+    opinionText = serializers.CharField(required=False,allow_blank=True)
+    opinion = serializers.BooleanField()
+    def update(self,instance,validated_data):
+
+        if  'opinion' in  validated_data:
+            instance.opinionDate = datetime.now()
+            if validated_data['opinion'] == 1:
+                # instance.request.opinion = validated_data['opinion']
+                instance.request.state+= 1
+                instance.request.save()
+            else:
+                instance.request.opinion = False
+                # instance.request.state = 1
+                instance.request.save()
+
+        if  'opinion' in  validated_data:
+            instance.opinionText = validated_data['opinionText']
+
+        instance.save()
+        return instance
 
 
 
@@ -198,8 +232,28 @@ class RequestGetSerializer(serializers.Serializer):
 
 
 
-# class CheckInternShipSerializer(serializers.ModelSerializer):
-#     student = StudentInformationSerializer()
-#     class Meta:
-#         model = InternshipForm
-#         fields = '__all__'
+
+
+class RoleInformationFlowSerializer(serializers.ModelSerializer):
+    # department = DepartmentInformation(many=True)
+    class Meta:
+        model = Role
+        fields = ['role']
+
+class UsreInformationFlowSerializer(serializers.ModelSerializer):
+    roles = RoleInformationFlowSerializer(many=True)
+    class Meta:
+        model = Users
+        fields = ['roles']
+
+class RequestInformationGETSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ['title','state','reqdate']
+
+class RequestFlowSerializer(serializers.ModelSerializer):
+    user = UsreInformationFlowSerializer()
+    request = RequestInformationGETSerializer()
+    class Meta:
+        model=Opinion
+        fields='__all__'
