@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 
 
 AUTH_USER_MODEL = "public.Users"
-
+# AUTH_USER_MODEL = "public.Students"
 # Application definition
 
 INSTALLED_APPS = [

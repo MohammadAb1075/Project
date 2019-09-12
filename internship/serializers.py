@@ -1,4 +1,6 @@
 import re
+from datetime import datetime
+from django.db.models import Q
 from rest_framework import serializers
 from public.models import *
 from internship.models import *
@@ -75,22 +77,8 @@ class RequestInformationGETSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class RequestInformationPOSTSerializer
-
-class OpinionsSerializers(serializers.ModelSerializer):
-    request = RequestInformationGETSerializer()
-    class Meta:
-        model = Opinions
-        fields = '__all__'
 
 
-
-
-
-class RequestInformationGETSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(required=False)
-    last_name = serializers.CharField(required=False)
-    usernaem = serializers.CharField(required=False)
 
 
 
@@ -110,6 +98,10 @@ class RequestFormInternShipSerializer(serializers.Serializer):
             print("***********",self.context['student'].credits)
             raise serializers.ValidationError(
                 'The Phone Number Should Only Be In Number !!!'
+            )
+        if self.context['student'].credits < 80 :
+            raise serializers.ValidationError(
+                'Credits Error'
             )
         return data
 
@@ -132,26 +124,63 @@ class RequestFormInternShipSerializer(serializers.Serializer):
         request=Request.objects.create(
             student = self.context['student'],
             internshipPlace = isp,
-            title='InternShip',
+            title = 'InternShip',
             term = data['term'],
             state = 1
         )
+        request.save()
 
         if 'comment' in data:
             request.comment = data['comment']
-        request.save()
+        # request.save()
         # request.title='InternShip'
-        return request
+        print("***********",request.student.major)
+        r=Role.objects.get(Q(role='FacultyTrainingStaff'))
+        # print("***********",r.department.all()[0])
+        u=Users.objects.get(roles=r)
+        try:
+            opinion=Opinion(
+                user = u,
+                request = request,
+            )
+
+            opinion.save()
+            return request
+        except:
+            request.delete()
+            isp.delete()
+            raise serializers.ValidationError(
+                'Error!!!'
+            )
+
+class OpinionSerializers(serializers.ModelSerializer):
+    # user = UsreInformation()
+    request = RequestInformationGETSerializer()
+    class Meta:
+        model = Opinion
+        exclude=['user']
 
 
-
-
-class OpinionsSerializers(serializers.ModelSerializer):
-
-    pass
-
-
-
+class RequestGetSerializer(serializers.Serializer):
+    first_name = serializers.CharField(
+        required=False, allow_blank=False, max_length=100)
+    last_name = serializers.CharField(
+        required=False, allow_blank=False, max_length=100)
+    username = serializers.CharField(
+        required=False, allow_blank=False, max_length=100)
+    title = serializers.CharField(
+        required=False, allow_blank=False, max_length=100)
+    
+# class OpinionSerializers(serializers.Serializer):
+#     request = RequestInformationGETSerializer()
+#     seenDate = serializers.DateTimeField(required=False)
+#     opinionDate = serializers.DateTimeField(required=False)
+#     opinionText = serializers.CharField(required=False)
+#
+#     def update(self,instance ,validated_data):
+#         instance.seenDate = datatime.now()
+#         instance.save()
+#         return  instance
 
 
 

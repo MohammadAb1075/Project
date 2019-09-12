@@ -50,23 +50,27 @@ class Request(models.Model):
     agreementUploadedUrl   = models.TextField(null=True,blank=True)
 
     def __str__(self):
-            return "{} from : {}".format(
-            self.self.title,
-            self.self.student.user.first_name + ' ' + self.student.user.last_name
+            return "{} From : {}".format(
+            self.title,
+            self.student.user.first_name + ' ' + self.student.user.last_name
         )
 
-class Opinions(models.Model):
+class Opinion(models.Model):
     user         = models.ForeignKey(Users, on_delete=models.DO_NOTHING, related_name='Operson')
-    request      = models.ForeignKey(Request, on_delete=models.DO_NOTHING, related_name='Orequest')
-    seenDate     = models.DateTimeField()
-    opinionDate  = models.DateTimeField()
+    request      = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='Orequest')
+    seenDate     = models.DateTimeField(null=True,blank=True)
+    opinionDate  = models.DateTimeField(null=True,blank=True)
     opinionText  = models.TextField(null=True,blank=True)
+
+    def __str__(self):
+        return "{} Request".format(self.request.title)
+
 
 
 class InternShip(models.Model):
     student                   = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
     internshiphead            = models.ForeignKey(InternshipHead, on_delete=models.DO_NOTHING)
-    gtOpinion                 = models.ForeignKey(Opinions, on_delete=models.DO_NOTHING)
+    gtOpinion                 = models.ForeignKey(Opinion, on_delete=models.DO_NOTHING)
     guideTeacher              = models.ForeignKey('internship.Choosing', on_delete=models.DO_NOTHING )#choosing
     studentFinalReport        = models.TextField()
     studentObjectionText      = models.TextField()
@@ -104,7 +108,7 @@ class WeeklyReport(models.Model):
 class Choosing(models.Model):
     user       = models.ForeignKey(Users, on_delete=models.DO_NOTHING)
     student    = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
-    gtOpinion  = models.ForeignKey(Opinions, on_delete=models.DO_NOTHING)
+    gtOpinion  = models.ForeignKey(Opinion, on_delete=models.DO_NOTHING)
 
 
 
