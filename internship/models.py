@@ -64,7 +64,7 @@ class Opinion(models.Model):
     opinionText  = models.TextField(null=True,blank=True)
 
     def __str__(self):
-        return "{} Request".format(self.request.title)
+        return "{} Request To {}".format(self.request.title,self.user.roles.all()[0])
 
 
 

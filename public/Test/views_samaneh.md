@@ -1,5 +1,3 @@
-from django.utils import timezone
-from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.views import APIView
@@ -9,6 +7,7 @@ from rest_framework.authentication import BasicAuthentication
 from Arion.utils import CsrfExemptSessionAuthentication
 from public.models import Users,Student
 from internship.serializers import *
+
 
 
 # class InternShipStateView(APIView):
@@ -118,9 +117,9 @@ class RequestFlowView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         student = Student.objects.get(user = request.user)
-        opinion = Opinion.objects.filter(request__student=student)
+        opinion = Opinion.objects.get(request__student=student)
 
-        serializer = RequestFlowSerializer(instance=opinion,many=True)
+        serializer = RequestFlowSerializer(instance=opinion)
 
         return Response(
             {
@@ -143,20 +142,31 @@ class CheckRequestView(APIView):
                 },
                 status=status.HTTP_401_UNAUTHORIZED
             )
+        # for r in request.user.roles.all():
+        #     r=str(r)
+        #     print("***********************************",request.user)
+        #     if r != 'FacultyTrainingStaff':
+        #         return Response(
+        #             {
+        #                 'message' : 'InAccessibility !!!'
+        #             },
+        #             status=status.HTTP_403_FORBIDDEN
+        #         )
+
 
         opinion_serializer = OpinionGetFilterSerializer(data=request.GET) #data=request.data
         if opinion_serializer.is_valid():
+            print("***********************************",request.user.roles.all())
             for r in request.user.roles.all():
                 r=str(r)
                 if r == 'FacultyTrainingStaff':
                     opinion = Opinion.objects.filter(request__state=1)
 
                 elif r == 'DepartmentHead':
-                    opinion = Opinion.objects.filter(Q(user__roles__role='DepartmentHead')&Q(request__state=2))
-                    print("***********************************",opinion)
+                    opinion = Opinion.objects.filter(request__state=2)
 
                 elif r == 'UniversityTrainingStaff':
-                    opinion = Opinion.objects.filter(Q(user__roles__role='UniversityTrainingStaff')&Q(request__state=3))
+                    opinion = Opinion.objects.filter(request__state=3)
 
                 else:
                     return Response(
@@ -186,8 +196,9 @@ class CheckRequestView(APIView):
                 )
             serializer=OpinionSerializers(instance=opinion,many=True)
             for op in opinion:
+                print("*********************",op.seenDate)
                 if op.seenDate is None:
-                    op.seenDate=timezone.now()
+                    op.seenDate=datetime.now()
                     op.save()
 
                 # op.seenDate=datetime.now()
@@ -215,17 +226,9 @@ class CheckRequestView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
-            r=Request.objects.all()[0]
-            r1=Request.objects.all()[1]
-            print("****************************",r.id)
-            print("****************************",r1.id)
-            print("****************************",Opinion.objects.filter(Q(request =4)&Q(user=request.user)))
-            # opinion = Opinion.objects.get(request__student__username = request.data['username'])
-            opinion = Opinion.objects.get(Q(request = request.data['id'])&Q(user=request.user))
-            print("****************************",opinion)
-            serializer = OpinionEditSerializer(instance=opinion,data=request.data)
+            opinion = Opinion.objects.get(id = request.data['id'])
+            serializer = OpinionEditSerializers(instance=opinion,data=request.data)
             if serializer.is_valid():
-
                 serializer.save()
                 return Response(
                     {

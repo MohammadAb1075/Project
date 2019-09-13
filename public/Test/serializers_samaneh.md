@@ -1,10 +1,9 @@
 import re
-from django.utils import timezone
+from datetime import datetime
+from django.db.models import Q
 from rest_framework import serializers
 from public.models import *
 from internship.models import *
-
-
 
 class CollogeInformation(serializers.ModelSerializer):
     class Meta:
@@ -133,14 +132,14 @@ class RequestFormInternShipSerializer(serializers.Serializer):
             internshipPlace = isp,
             title = 'InternShip',
             term = data['term'],
-            reqdate = timezone.now(),
+            reqdate = datetime.now(),
             state = 1
         )
         request.save()
 
         if 'comment' in data:
             request.comment = data['comment']
-        r=Role.objects.get(role='FacultyTrainingStaff')
+        r=Role.objects.get(Q(role='FacultyTrainingStaff'))
         u=Users.objects.get(roles=r)
         try:
             opinion=Opinion(
@@ -194,42 +193,35 @@ class OpinionGetFilterSerializer(serializers.Serializer):
 
 
 
-class OpinionEditSerializer(serializers.Serializer):
+class OpinionEditSerializers(serializers.Serializer):
     seenDate = serializers.DateTimeField(required=False)
     opinionDate = serializers.DateTimeField(required=False)
     opinionText = serializers.CharField(required=False,allow_blank=True)
     opinion = serializers.BooleanField()
-    # username = serializers.CharField(required=True)
+
     def update(self,instance,validated_data):
 
-
         if  'opinion' in  validated_data:
-            instance.opinionDate = timezone.now()
+            instance.opinionDate = datetime.now()
             if validated_data['opinion'] == 1:
+                instance.request.opinion = validated_data['opinion']
                 instance.request.state += 1
+                instance.seenDate = None
                 instance.request.save()
 
                 if instance.request.state == 2:
-                    r=Role.objects.get(role='DepartmentHead')
+                    r=Role.objects.get(Q(role='DepartmentHead'))
                     u=Users.objects.get(roles=r)
-                    op=Opinion(
-                        user = u,
-                        request = instance.request,
-                    )
-                    op.save()
+                    instance.user=u
+                    instance.save()
 
                 if instance.request.state == 3:
-                    r=Role.objects.get(role='UniversityTrainingStaff')
+                    r=Role.objects.get(Q(role='UniversityTrainingStaff'))
                     u=Users.objects.get(roles=r)
-                    op=Opinion(
-                        user = u,
-                        request = instance.request,
-                    )
-                    op.save()
-
+                    instance.user=u
+                    instance.save()
 
             else:
-                print("hiiiiiiiiiiiiiiiiiiii")
                 for r in instance.user.roles.all():
                     r=str(r)
                     if r == 'FacultyTrainingStaff':
@@ -247,49 +239,6 @@ class OpinionEditSerializer(serializers.Serializer):
 
         instance.save()
         return instance
-
-
-
-
-
-# class OpinionEditSerializers(serializers.Serializer):
-#     seenDate = serializers.DateTimeField(required=False)
-#     opinionDate = serializers.DateTimeField(required=False)
-#     opinionText = serializers.CharField(required=False,allow_blank=True)
-#     opinion = serializers.BooleanField()
-#     def update(self,instance,validated_data):
-#
-#         if  'opinion' in  validated_data:
-#             instance.opinionDate = datetime.now()
-#             if validated_data['opinion'] == 1:
-#                 instance.request.opinion = 1
-#                 # instance.request.state+= 1
-#                 instance.request.save()
-#                 r=Role.objects.get(Q(role='DepartmentHead'))
-#                 u=Users.objects.get(roles=r)
-#                 op=Opinion(
-#                     user = u,
-#                     request = instance.request,
-#                 )
-#                 op.save()
-#             else:
-#                 instance.request.opinion = False
-#                 # instance.request.state = 1
-#                 instance.request.save()
-#
-#         if  'opinion' in  validated_data:
-#             instance.opinionText = validated_data['opinionText']
-#
-#         instance.save()
-#         return instance
-
-
-
-
-
-
-
-
 
 
 
