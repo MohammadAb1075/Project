@@ -207,6 +207,7 @@ class CheckRequestView(APIView):
             )
 
     def put(self, request):
+
         if type(request.user) is AnonymousUser:
             return Response(
                 {
@@ -215,17 +216,11 @@ class CheckRequestView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
-            r=Request.objects.all()[0]
-            r1=Request.objects.all()[1]
-            print("****************************",r.id)
-            print("****************************",r1.id)
-            print("****************************",Opinion.objects.filter(Q(request =4)&Q(user=request.user)))
-            # opinion = Opinion.objects.get(request__student__username = request.data['username'])
-            opinion = Opinion.objects.get(Q(request = request.data['id'])&Q(user=request.user))
-            print("****************************",opinion)
+                
+            opinion = Opinion.objects.get(Q(request = request.data['id']) & Q(user=request.user))
             serializer = OpinionEditSerializer(instance=opinion,data=request.data)
-            if serializer.is_valid():
 
+            if serializer.is_valid():
                 serializer.save()
                 return Response(
                     {
@@ -246,129 +241,3 @@ class CheckRequestView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class CheckFacultyTrainingStaffView(APIView):
-#     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
-#
-#     def get(self,request):
-#         if type(request.user) is AnonymousUser:
-#             return Response(
-#                 {
-#                     'message' : 'UnAuthorize !!!'
-#                 },
-#                 status=status.HTTP_401_UNAUTHORIZED
-#             )
-#         for r in request.user.roles.all():
-#             r=str(r)
-#             print("***********************************",request.user)
-#             if r != 'FacultyTrainingStaff':
-#                 return Response(
-#                     {
-#                         'message' : 'InAccessibility !!!'
-#                     },
-#                     status=status.HTTP_403_FORBIDDEN
-#                 )
-#
-#
-#         opinion_serializer = OpinionGetFilterSerializer(data=request.GET) #data=request.data
-#         if opinion_serializer.is_valid():
-#             opinion = Opinion.objects.filter(request__state=1)
-#             if 'first_name' in opinion_serializer.data:
-#                 opinion = opinion.filter(
-#                     request__student__user__first_name=opinion_serializer.data['first_name']
-#                 )
-#             if 'last_name' in opinion_serializer.data:
-#                 opinion = opinion.filter(
-#                     request__student__user__last_name=opinion_serializer.data['last_name']
-#                 )
-#             if 'username' in opinion_serializer.data:
-#                 opinion = opinion.filter(
-#                     request__student__user__username=opinion_serializer.data['username']
-#                 )
-#             if 'title' in opinion_serializer.data:
-#                 opinion = opinion.filter(
-#                     request__title=opinion_serializer.data['title']
-#                 )
-#             serializer=OpinionSerializers(instance=opinion,many=True)
-#             for op in opinion:
-#                 print("**********",op.seenDate)
-#                 if op.seenDate is None:
-#                     op.seenDate=datetime.now()
-#                     op.save()
-#             return Response(
-#                 {
-#                     'data' : serializer.data
-#                 },
-#                 status=status.HTTP_200_OK
-#             )
-#         else:
-#             return Response(
-#                 opinion_serializer.errors,
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
-#
-#     def put(self, request):
-#         if type(request.user) is AnonymousUser:
-#             return Response(
-#                 {
-#                     'message' : 'UnAuthorize !!!'
-#                 },
-#                 status=status.HTTP_401_UNAUTHORIZED
-#             )
-#         else:
-#             opinion = Opinion.objects.get(id = request.data['id'])
-#             serializer = OpinionEditSerializers(instance=opinion,data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response(
-#                     {
-#                     'message': 'Your Opinion Was Recorded Successfuly',
-#                     # 'data': serializer.data
-#                     },
-#                     status=status.HTTP_200_OK
-#                 )
-#             else:
-#                 return Response(
-#                     serializer.errors,
-#                     status=status.HTTP_404_NOT_FOUND
-#                 )
-#
-#             return Response(
-#                 {
-#                 "user" : serializer.data
-#                 },
-#                 status=status.HTTP_200_OK
-#             )

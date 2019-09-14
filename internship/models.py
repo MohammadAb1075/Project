@@ -39,6 +39,15 @@ Semester = (
     ('3','Summer'),
 )
 
+
+# State = (
+#     ('1','1'),
+#     ('2','2'),
+#     ('3','3'),
+# )
+
+
+
 class Request(models.Model):
     internshipPlace        = models.ForeignKey(InternShipPlace,on_delete=models.DO_NOTHING)
     student                = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
@@ -49,6 +58,7 @@ class Request(models.Model):
     opinion                = models.BooleanField(default=False)
     agreementUploadedUrl   = models.TextField(null=True,blank=True)
     reqdate                = models.DateTimeField()
+    ######################reqhash                = models.TextField(null=True,blank=True)###############################
 
     def __str__(self):
             return "{} From : {}".format(
@@ -64,7 +74,7 @@ class Opinion(models.Model):
     opinionText  = models.TextField(null=True,blank=True)
 
     def __str__(self):
-        return "{} Request To {}".format(self.request.title,self.user.roles.all()[0])
+        return "{} Request From {} To {}".format(self.request.title,self.request.student.user.first_name + ' ' + self.request.student.user.last_name,self.user.roles.all()[0])
 
 
 
