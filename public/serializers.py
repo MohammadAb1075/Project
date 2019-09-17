@@ -193,3 +193,14 @@ class EditProfileSerializer(serializers.Serializer):
 
         instance.save()
         return  instance
+
+
+
+class InboxSerializer(serializers.Serializer):
+    first_name = serializers.CharField(required=False)
+    last_name = serializers.CharField(required=False)
+    startDate = serializers.CharField(required=False)
+    endDate = serializers.CharField(required=False)
+    isArchive =serializers.BooleanField(default=False)
+    isStared = serializers.BooleanField(default=False)
+    userRole = serializers.CharField(required=True)
