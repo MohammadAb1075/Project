@@ -36,10 +36,9 @@ class SignUpSerializer(serializers.Serializer):
     last_name = serializers.CharField(max_length=31)
     username = serializers.EmailField(max_length=31)
     password = serializers.CharField(max_length=31)
-    # roles =  serializers.IntegerField(min_value=1)
     role =  serializers.CharField(max_length=31)
     departmentName = serializers.CharField(max_length=63)
-    # department = serializers.IntegerField()
+
     def create(self, data):
         try:
             d=Department.objects.filter(departmentName=data['departmentName'])[0]
@@ -50,37 +49,24 @@ class SignUpSerializer(serializers.Serializer):
                 departmentName = data['departmentName']
                 )
             d.save()
-        print("******************************",d)
         try:
-            # r=Role.objects.filter(department=d)[0]
             r=Role.objects.filter(Q(role=data['role']) & Q(department=d))[0]
-            print("******************************",r)
         except:
             r=Role(
                 role=data['role']
             )
-            # department.set(d)
+
             r.save()
-            # department.set(d)
             r.department.add(d)
-            # d.save()
             r.save()
 
-
-
-        # r=Role.objects.filter(id= data['roles'])
         u = Users(
             first_name = data['first_name'],
             last_name = data['last_name'],
             username = data['username'],
-            # roles = r
         )
-        # print("*************************",data['roles'])
         u.set_password(data['password'])
         u.save()
-        # for i in data['roles']:
-        #     u.roles.add(i)
-
         u.roles.add(r)
         u.save()
         return u
@@ -132,6 +118,7 @@ class RequestSigninSerializer(serializers.Serializer):
         required=True, allow_blank=False, max_length=30)
     password = serializers.CharField(
         required=True, allow_blank=False, max_length=128)
+
 
 
 class ForgetEmailSerializer(serializers.Serializer):
