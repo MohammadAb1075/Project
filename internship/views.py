@@ -153,7 +153,7 @@ class CheckRequestView(APIView):
 
                 elif r == 'DepartmentHead':
                     opinion = Opinion.objects.filter(Q(user__roles__role='DepartmentHead')&Q(request__state=2))
-                    print("***********************************",opinion)
+                    print("**************hiiiiasdnnksjnk*********************",opinion)
 
                 elif r == 'UniversityTrainingStaff':
                     opinion = Opinion.objects.filter(Q(user__roles__role='UniversityTrainingStaff')&Q(request__state=3))
@@ -216,7 +216,7 @@ class CheckRequestView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         else:
-                
+
             opinion = Opinion.objects.get(Q(request = request.data['id']) & Q(user=request.user))
             serializer = OpinionEditSerializer(instance=opinion,data=request.data)
 
