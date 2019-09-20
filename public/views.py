@@ -13,6 +13,10 @@ from Arion.utils import CsrfExemptSessionAuthentication
 from public.models import Users,Student
 from public.serializers import *
 from . import newpass
+from .serializers import InboxSerializer
+from internship.models import WeeklyReport,AttendanceTable
+from request.models import Request
+from internship.models import Opinion
 
 
 
@@ -203,3 +207,72 @@ class LogOutView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+
+
+
+class Inbox(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    def get(self, request):
+        if type(request.user) is AnonymousUser:
+            return Response(
+                {
+                    'message' : 'UnAuthorize !!!'
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        serializedData = InboxSerializer(data=request.Get)
+        if serializedData.is_valid():
+            weeklyReport = WeeklyReport()
+            attendanceTable = AttendanceTable()
+            roll = InboxSerializer.data['userRole']
+            user = Users.objects.get(user = request.user)
+            if roll == 'FacultyTrainingStaff':
+                request = Request.objects.filter(Q(applicant__major=user.roles.department) & Q(agreement__state__state=2))
+                opinion = Opinion.objects.filter(request__state=1)
+            elif roll == 'DepartmentHead':
+                request = Request.objects.filter(Q(applicant__major=user.roles.department) & Q(agreement__state__state=1))
+                opinion = Opinion.objects.filter(Q(user__roles__role='DepartmentHead') & Q(request__state=2))
+            elif roll == 'UniversityTrainingStaff':
+                request = Request.objects.filter(Q(applicant__major=user.roles.department) & Q(agreement__state__state=3))
+                opinion = Opinion.objects.filter(Q(user__roles__role='UniversityTrainingStaff') & Q(request__state=3))
+            elif roll == 'Teacher':
+                request = Request.objects.filter(Q(applicant__major=user.roles.department) & Q(agreement__state__state=4))
+                opinion = Opinion.objects.filter(Q(user__roles__role='UniversityTrainingStaff') & Q(request__state=3))
+                weeklyReport = WeeklyReport.objects.filter(internShip__guideTeacher__user=request.user)
+                attendanceTable = AttendanceTable.objects.filter(internShip__guideTeacher__user=request.user)
+
+
+
+
+
+
+            else:
+                return Response(
+                    {
+                        'message': 'InAccessibility !!!'
+                    },
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            if 'first_name' in serializedData.data:
+                opinion.filter(
+                    request__student__user__first_name__contains = serializedData.data['first_name']
+                )
+                attendanceTable.objects.filter(
+                    internShip__student__user__first_name__contain = serializedData.data['first_name']
+                )
+                request.filter(
+                    applicant__user__first_name=serializedData.data['first_name']
+                )
+            if 'last_name' in serializedData.data:
+                opinion.filter(
+                    request__student__user__last_name__contains = serializedData.data['last_name']
+                )
+                attendanceTable.objects.filter(
+                    internShip__student__user__last_name__contain=serializedData.data['last_name']
+                )
+                request.filter(
+                    applicant__user__first_name__contain=serializedData.data['last_name']
+                )
+
